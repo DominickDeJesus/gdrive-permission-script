@@ -18,7 +18,7 @@
 
 8. Rename the file `credentials.json` and add it to the project directory.
 
-9. Give editing permision to the `client_email` on the folder that you want to control using this script. This `client_email` is the one refered to in the JSON file that was generated.
+9. Give editing permission to the `client_email` on the folder that you want to control using this script. This `client_email` is the one referred to in the JSON file that was generated.
 
 ## Setup for running
 
@@ -26,19 +26,19 @@
 
 ## Running the Script
 
-To add wrtie permissions to a list of email adresses
+To add write permissions to a list of email addresses
 
 ```bash
 node index.js -a gdriveFileName ./pathToTextFileWithEmails.txt
 ```
 
-To remove write permissions to a list of email adresses:
+To remove write permissions to a list of email addresses:
 
 ```
 node index.js -r gdriveFileName ./pathToTextFileWithEmails.txt
 ```
 
-To get an example of the argments to use:
+To get an example of the arguments to use:
 
 ```
 node index.js -h
