@@ -6,9 +6,11 @@
 
 - Create/select a project.
 
+- Enable the Google Drive API.
+
 - Go to https://console.developers.google.com/apis/credentials and create a service account for the project.
 
-- Click Create Credentials -> Service Account -> Type a name for the account -> Create
+- Click Create Credentials -> Service Account -> Type a name for the account -> Create.
 
 - Click on the newly created account, then the add key button.
 
