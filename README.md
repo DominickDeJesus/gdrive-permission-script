@@ -1,4 +1,6 @@
-# GDrive-Permission-Script
+# Google Drive Permission Script
+
+## Setup
 
 - Go to https://console.developers.google.com/
 
@@ -15,3 +17,9 @@
 - Rename the file `credentials.json` and add it to the project directory.
 
 - Give editing permision to the `client_email` on the folder that you want to control using this script. This `client_email` is the one refered to in the JSON file that was generated.
+
+## Running the Script
+
+```bash
+node .
+```
