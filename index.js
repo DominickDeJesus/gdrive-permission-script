@@ -1,19 +1,23 @@
-const fs = require('fs');
-const readline = require('readline');
-const { google } = require('googleapis');
+const fs = require("fs");
+const readline = require("readline");
+const { google } = require("googleapis");
+const async = require("async");
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+const SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly"];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
+const TOKEN_PATH = "token.json";
 
 // Load client secrets from a local file.
-fs.readFile('./credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
+fs.readFile("credentials.json", (err, content) => {
+  if (err) return console.log("Error loading client secret file:", err);
   // Authorize a client with credentials, then call the Google Drive API.
-  authorize(JSON.parse(content), listFiles);
+  authorize(JSON.parse(content), () => {
+    const filesArr = listFiles();
+    addPermissions(students, filesArr);
+  });
 });
 
 /**
@@ -23,11 +27,7 @@ fs.readFile('./credentials.json', (err, content) => {
  * @param {function} callback The callback to call with the authorized client.
  */
 function authorize(credentials, callback) {
-  const redirect_uris = ['http://127.0.0.1:5500'];
-  const client_id =
-    '338345514775-eg1vi0u2a26ov810ber4dm4flddspskq.apps.googleusercontent.com';
-
-  const client_secret = '0jHm-H0Cl9VrPsnvSbpC-ZuJ';
+  const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -50,23 +50,23 @@ function authorize(credentials, callback) {
  */
 function getAccessToken(oAuth2Client, callback) {
   const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES
+    access_type: "offline",
+    scope: SCOPES,
   });
-  console.log('Authorize this app by visiting this url:', authUrl);
+  console.log("Authorize this app by visiting this url:", authUrl);
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
-  rl.question('Enter the code from that page here: ', (code) => {
+  rl.question("Enter the code from that page here: ", (code) => {
     rl.close();
     oAuth2Client.getToken(code, (err, token) => {
-      if (err) return console.error('Error retrieving access token', err);
+      if (err) return console.error("Error retrieving access token", err);
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
       fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
         if (err) return console.error(err);
-        console.log('Token stored to', TOKEN_PATH);
+        console.log("Token stored to", TOKEN_PATH);
       });
       callback(oAuth2Client);
     });
@@ -78,51 +78,67 @@ function getAccessToken(oAuth2Client, callback) {
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
 function listFiles(auth) {
-  const drive = google.drive({ version: 'v3', auth });
+  const drive = google.drive({ version: "v3", auth });
   drive.files.list(
     {
-      pageSize: 1000,
-      fields: 'nextPageToken, files(id, name)',
-      q: 'name contains c'
-      // fileId: '0B7s2YukZSquwdUdFc0ppcDlMWUU'
+      q: "name='wyn_test'",
+      pageSize: 10,
+      fields: "nextPageToken, files(id, name)",
     },
     (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err);
+      if (err) return console.log("The API returned an error: " + err);
       const files = res.data.files;
       if (files.length) {
-        console.log('Files:');
+        console.log("Files:");
         files.map((file) => {
           console.log(`${file.name} (${file.id})`);
         });
+        return files;
       } else {
-        console.log('No files found.');
+        console.log("No files found.");
       }
     }
   );
 }
 
-var fileId = '1WebrfkJlCeSfMkvRKFAqSFtqkcncPJdw';
+var fileId = "1sTWaJ_j7PkjzaBWtNc3IzovK5hQf21FbOw9yLeeLPNQ";
+var students = [
+  {
+    type: "user",
+    role: "writer",
+    emailAddress: "nick@wyncode.co",
+  },
+];
 
-fs.readFile('./credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Google Drive API.
-  authorize(JSON.parse(content), download);
-});
-
-const download = (auth) => {
-  const drive = google.drive({ version: 'v3', auth });
-  var dest = fs.createWriteStream('~/Desktop');
-
-  drive.files
-    .get({
-      fileId: fileId,
-      alt: 'media'
-    })
-    .on('end', function () {
-      console.log('Done');
-    })
-    .on('error', function (err) {
-      console.log('Error during download', err);
-    })
-    .pipe(dest);
-};
+function addPermissions(fileId, permissions) {
+  async.eachSeries(
+    permissions,
+    function (permission, permissionCallback) {
+      drive.permissions.create(
+        {
+          resource: permission,
+          fileId: fileId,
+          fields: "id",
+        },
+        function (err, res) {
+          if (err) {
+            // Handle error...
+            console.error(err);
+            permissionCallback(err);
+          } else {
+            console.log("Permission ID: ", res.id);
+            permissionCallback();
+          }
+        }
+      );
+    },
+    function (err) {
+      if (err) {
+        // Handle error
+        console.error(err);
+      } else {
+        // All permissions inserted
+      }
+    }
+  );
+}
