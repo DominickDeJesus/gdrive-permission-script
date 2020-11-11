@@ -22,7 +22,7 @@
 
 ## Setup for running
 
-- Follow steps 7-9 to give the service account authorization to manage the google drive.
+- Follow steps 6-9 to give the service account authorization to manage the google drive.
 
 ## Running the Script
 

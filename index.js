@@ -106,7 +106,7 @@ function removePermissions(fileId, permissionIds) {
       function (err, res) {
         if (err) {
           // Handle error...
-          console.error(err);
+          console.error(err.message);
         } else {
           console.log("Account removed Permission ID");
         }
@@ -135,7 +135,7 @@ async function addPermissions(fileId, accounts) {
       function (err, res) {
         if (err) {
           // Handle error...
-          console.error(err);
+          console.error(err.message);
         } else {
           console.log("Account added Permission ID: ", res.data.id);
         }
