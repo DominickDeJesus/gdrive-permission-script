@@ -1,5 +1,7 @@
 # Google Drive Permission Script
 
+This script will add/remove edit permissions from a google drive file/folder given a list of emails. This script is run through the command line.  
+
 ## Setup for development
 
 1. Go to https://console.developers.google.com/
