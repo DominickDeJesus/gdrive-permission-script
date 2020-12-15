@@ -22,10 +22,10 @@ const drive = google.drive({ version: "v3", auth });
 		const emails = await getAccountEmails(args[2]);
 		const file = await getFileId(args[1]);
 
-		if (args[0] === "-r") {
+		if (args[0] === "-r" || args[0] === "--remove") {
 			const permIds = await getPermissionIds(file, emails);
 			await removePermissions(file, permIds);
-		} else if (args[0] === "-a") {
+		} else if (args[0] === "-a" || args[0] === "--add") {
 			await addPermissions(file, emails);
 		} else {
 			throw new Error({ error: "Wrong cli arguments!" });
@@ -153,10 +153,13 @@ async function checkCliArgs(argArr) {
 	switch (argArr[0]) {
 		case "-r":
 		case "-a":
+		case "-add":
+		case "-remove":
 			break;
 		case "-h":
+		case "--help":
 			throw new Error(
-				"Sample input: node index.js gdrivefilename ./fileToEmailsList.txt"
+				"Sample input: node index.js gdrivefilename ./FilePathToEmailsList.txt"
 			);
 		default:
 			throw new Error(
